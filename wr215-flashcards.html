@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WR215 — Hébergement · Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Epilogue:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f1012;
+  --surface: #17191c;
+  --surface2: #1e2126;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.14);
+  --text: #eceae4;
+  --muted: #7a7873;
+  --accent: #d4a853;
+  --green: #4e9966;
+  --red: #b85550;
+  --blue: #4a7fa8;
+  --exam-accent: #c0614a;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Epilogue', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+header {
+  padding: 1.75rem 2rem 1.25rem;
+  border-bottom: 0.5px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+header h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.65rem;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+header .tagline {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.score-bar {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.score-bar span { color: var(--muted); }
+.score-bar .ok { color: var(--green); }
+.score-bar .ko { color: var(--red); }
+.score-bar .skip { color: var(--muted); }
+
+/* ── Tabs ── */
+.tabs {
+  padding: 0.75rem 2rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  border-bottom: 0.5px solid var(--border);
+}
+.tab {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  padding: 5px 12px;
+  border: 0.5px solid var(--border2);
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.15s;
+  letter-spacing: 0.03em;
+}
+.tab:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+.tab.active {
+  background: var(--surface2);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.tab.exam.active {
+  color: var(--exam-accent);
+  border-color: var(--exam-accent);
+}
+
+/* ── Main ── */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  gap: 1.5rem;
+}
+
+/* ── Progress ── */
+.progress-wrap {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.progress-track {
+  height: 2px;
+  background: var(--surface2);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 1px;
+  transition: width 0.3s ease;
+}
+.progress-fill.exam-color { background: var(--exam-accent); }
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--muted);
+}
+
+/* ── Card ── */
+.card-scene {
+  width: 100%;
+  max-width: 680px;
+  height: 260px;
+  perspective: 1200px;
+  cursor: pointer;
+}
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+}
+.card-inner.flipped { transform: rotateY(180deg); }
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  border: 0.5px solid var(--border2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  text-align: center;
+  gap: 1rem;
+}
+.card-face.front { background: var(--surface); }
+.card-face.back {
+  background: var(--surface2);
+  transform: rotateY(180deg);
+}
+.card-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 10px;
+  border-radius: 3px;
+  border: 0.5px solid;
+}
+.card-tag.front-tag { color: var(--muted); border-color: var(--border2); }
+.card-tag.back-tag { color: var(--blue); border-color: var(--blue); opacity: 0.8; }
+.card-tag.exam-tag { color: var(--exam-accent); border-color: var(--exam-accent); opacity: 0.9; }
+.card-q {
+  font-family: 'Fraunces', serif;
+  font-size: 1.3rem;
+  line-height: 1.45;
+  color: var(--text);
+  font-weight: 400;
+}
+.card-a {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+.card-a code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  background: rgba(255,255,255,0.06);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--accent);
+  display: inline-block;
+  margin: 1px 0;
+}
+.card-hint {
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  padding: 9px 20px;
+  border: 0.5px solid var(--border2);
+  border-radius: 5px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text);
+  transition: all 0.15s;
+  letter-spacing: 0.03em;
+}
+.btn:hover { background: var(--surface2); }
+.btn:active { transform: scale(0.97); }
+.btn.good { border-color: var(--green); color: var(--green); }
+.btn.good:hover { background: rgba(78,153,102,0.12); }
+.btn.bad { border-color: var(--red); color: var(--red); }
+.btn.bad:hover { background: rgba(184,85,80,0.12); }
+.btn.pass { color: var(--muted); font-size: 0.72rem; }
+
+/* ── Badges ── */
+.badges {
+  display: flex;
+  gap: 0.75rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+}
+.badge-ok { color: var(--green); }
+.badge-ko { color: var(--red); }
+.badge-sk { color: var(--muted); }
+
+/* ── End card ── */
+.end-card {
+  width: 100%;
+  max-width: 680px;
+  background: var(--surface);
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  padding: 2.5rem;
+  text-align: center;
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+.end-card.show { display: flex; }
+.end-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  color: var(--text);
+}
+.end-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.end-pct {
+  font-family: 'Fraunces', serif;
+  font-size: 3rem;
+  color: var(--accent);
+  line-height: 1;
+}
+.btn-restart {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  padding: 9px 22px;
+  border: 0.5px solid var(--accent);
+  border-radius: 5px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--accent);
+  transition: all 0.15s;
+  letter-spacing: 0.05em;
+}
+.btn-restart:hover { background: rgba(212,168,83,0.1); }
+
+/* ── localStorage legend ── */
+.ls-info {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  opacity: 0.6;
+  padding: 0 2rem 0.75rem;
+  text-align: center;
+}
+
+/* ── Scrollable answer ── */
+.card-face.back { overflow-y: auto; }
+
+@media (max-width: 600px) {
+  main { padding: 1rem; }
+  header { padding: 1rem; }
+  .tabs { padding: 0.5rem 1rem; }
+  .card-scene { height: 300px; }
+  .card-q { font-size: 1.1rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>WR215 — Hébergement</h1>
+    <div class="tagline">Séances 1 → 7 · Flashcards</div>
+  </div>
+  <div class="score-bar">
+    <span class="ok" id="hdr-ok">✓ 0</span>
+    <span class="ko" id="hdr-ko">✗ 0</span>
+    <span class="skip" id="hdr-skip">→ 0</span>
+  </div>
+</header>
+
+<div class="tabs" id="tabs"></div>
+
+<main>
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="prog"></div>
+    </div>
+    <div class="progress-meta">
+      <span id="prog-counter">Carte 1 / —</span>
+      <span id="prog-cat"></span>
+    </div>
+  </div>
+
+  <div class="card-scene" id="scene" onclick="flip()">
+    <div class="card-inner" id="inner">
+      <div class="card-face front" id="face-front">
+        <span class="card-tag front-tag">Question</span>
+        <p class="card-q" id="card-q">Chargement…</p>
+        <p class="card-hint">— cliquer pour retourner —</p>
+      </div>
+      <div class="card-face back" id="face-back">
+        <span class="card-tag back-tag" id="back-tag">Réponse</span>
+        <p class="card-a" id="card-a"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls" id="controls">
+    <button class="btn bad" onclick="vote(false)">✗ Raté</button>
+    <button class="btn pass" onclick="skip()">Passer →</button>
+    <button class="btn good" onclick="vote(true)">✓ Su</button>
+  </div>
+
+  <div class="badges">
+    <span class="badge-ok" id="b-ok">✓ 0</span>
+    <span class="badge-ko" id="b-ko">✗ 0</span>
+    <span class="badge-sk" id="b-sk">→ 0</span>
+  </div>
+
+  <div class="end-card" id="end-card">
+    <p class="end-title" id="end-title">Terminé !</p>
+    <p class="end-pct" id="end-pct">0%</p>
+    <p class="end-sub" id="end-sub"></p>
+    <button class="btn-restart" id="btn-restart">Recommencer</button>
+  </div>
+</main>
+
+<div class="ls-info">Progression sauvegardée automatiquement · localStorage wr215_v1</div>
+
+<script>
+const CARDS = {
+  exam: {
+    label: "★ Essentiels exam",
+    isExam: true,
+    cards: [
+      {q:"Commande complète pour créer le container buts2", a:"docker run -dti --name buts2 --hostname buts2 -v ./www:/var/www -v /var/lib/mysql -p 8215:80 -p 2222:2222 mmi3docker/mmibuts2:2025"},
+      {q:"3 étapes pour activer un site Apache", a:"1. Créer le fichier .conf dans /etc/apache2/sites-available\n2. Activer avec : a2ensite fichier.conf\n3. Recharger : service apache2 reload"},
+      {q:"3 directives obligatoires dans un VirtualHost Apache", a:"ServerName → URL du site\nDocumentRoot → dossier des fichiers\nDirectoryIndex → page par défaut"},
+      {q:"Différence sites-available vs sites-enabled", a:"sites-available : tous les fichiers .conf existants\nsites-enabled : liens symboliques vers les sites actifs seulement\na2ensite crée le lien dans sites-enabled"},
+      {q:"Commande pour entrer dans le container buts2", a:"docker exec -ti buts2 bash"},
+      {q:"5 types d'enregistrements DNS à connaître", a:"A → adresse IPv4\nAAAA → adresse IPv6\nNS → serveur de noms\nMX → serveur mail\nCNAME → alias de service (www, ftp…)"},
+      {q:"Différence chiffrement symétrique vs asymétrique", a:"Symétrique : même clé pour chiffrer/déchiffrer → problème d'échange\nAsymétrique (clé publique) : clé publique chiffre, clé privée déchiffre → authentification possible"},
+      {q:"Commande pour générer une paire de clés SSH ecdsa", a:"ssh-keygen -t ecdsa\n→ produit id_ecdsa (privée) + id_ecdsa.pub (publique) dans ~/.ssh/"},
+      {q:"Commande pour envoyer sa clé publique au serveur", a:"ssh-copy-id user@IP_SERVEUR\n→ ajoute la clé dans ~/.ssh/authorized_keys du serveur"},
+      {q:"Ports par défaut : SSH / HTTP / HTTPS", a:"SSH : 22\nHTTP : 80\nHTTPS : 443"},
+      {q:"Ordre des 5 champs crontab", a:"Minutes (0-59)  Heures (0-23)  Jour_mois (1-31)  Mois (1-12)  Jour_semaine (0-6)\nExemple : */2 * * * * = toutes les 2 min"},
+      {q:"Commande GoAccess pour générer un rapport HTML", a:"goaccess /var/log/apache2/site.log --log-format=combined -a -o /var/www/site/rapport.html"},
+      {q:"Où est stockée la clé publique du CLIENT sur le SERVEUR ?", a:"Dans ~/.ssh/authorized_keys du serveur\n(placée là par ssh-copy-id)"},
+      {q:"Où est stockée la clé publique du SERVEUR chez le CLIENT ?", a:"Dans ~/.ssh/known_hosts du client\n(ajoutée automatiquement à la 1ère connexion)"},
+      {q:"Commande git pour cloner un repo via SSH", a:"git clone git@github.com:user/repo.git\n(nécessite la clé publique déposée sur GitHub)"},
+    ]
+  },
+  s1: {
+    label: "S1 — Container Docker",
+    cards: [
+      {q:"Que signifient les options -dti dans docker run ?", a:"d = detached (tâche de fond)\nt = terminal\ni = interactif"},
+      {q:"Que fait -v ./www:/var/www dans docker run ?", a:"Bind mount : monte le dossier local ./www sur /var/www du container. Fichiers partagés dans les deux sens."},
+      {q:"-v /var/lib/mysql sans dossier local : quel effet ?", a:"Crée un volume Docker anonyme pour persister les données MySQL, même si le container est arrêté."},
+      {q:"URL Apache du container buts2", a:"http://localhost:8215"},
+      {q:"URL et identifiants PhpMyAdmin", a:"http://localhost:8215/adminsql\nLogin : mmis2\nMot de passe : PASSWORD"},
+      {q:"Commande SSH pour se connecter au container", a:"ssh mmis2@localhost -p 2222"},
+      {q:"Services inclus dans mmi3docker/mmibuts2:2025", a:"Apache2, PHP 8.2, MariaDB, PhpMyAdmin, Git\nUtilitaires : nano, curl, unzip, dnsutils, wget"},
+      {q:"Rôle du --hostname dans docker run", a:"Définit le nom affiché dans l'invite de commande quand on est connecté au container"},
+      {q:"Commande pour vérifier qu'un container est actif", a:"docker ps | grep buts2"},
+      {q:"Comment voir l'arborescence du container ?", a:"docker exec -ti buts2 bash\npuis : tree /var/www"},
+    ]
+  },
+  s2: {
+    label: "S2 — VirtualHost Apache",
+    cards: [
+      {q:"Dossier de configuration des sites Apache", a:"/etc/apache2/sites-available/\n(tous les fichiers de conf, actifs ou non)"},
+      {q:"Rôle de la directive ServerName", a:"Indique l'URL du site — permet à Apache de distinguer les hôtes virtuels"},
+      {q:"Rôle de la directive DocumentRoot", a:"Indique le dossier contenant les pages du site"},
+      {q:"Rôle de la directive DirectoryIndex", a:"Définit la page affichée par défaut si aucun fichier n'est précisé dans l'URL"},
+      {q:"Rôle du bloc <Directory>", a:"Applique des directives spécifiques à un dossier (ex : règles RewriteEngine pour URLs propres)"},
+      {q:"Rôle de ErrorLog et CustomLog", a:"ErrorLog : fichier pour les erreurs du site\nCustomLog : fichier pour les accès + format (ex : combined)"},
+      {q:"Ce que crée a2ensite dans le système de fichiers", a:"Un lien symbolique dans /etc/apache2/sites-enabled/\npointant vers le .conf dans sites-available"},
+      {q:"Structure minimale d'un fichier VirtualHost", a:"<VirtualHost *:80>\n  ServerName domaine.fr\n  DocumentRoot /var/www/dossier\n  DirectoryIndex index.php\n</VirtualHost>"},
+    ]
+  },
+  s3: {
+    label: "S3 — Entêtes HTTP",
+    cards: [
+      {q:"Protocole de transport utilisé par HTTP", a:"TCP"},
+      {q:"Port HTTP et port HTTPS", a:"HTTP : 80\nHTTPS : 443"},
+      {q:"Commande pour capturer le trafic HTTP", a:"tcpdump -A port http\nPour sauvegarder : tcpdump -A port http > /var/www/html/capture.txt"},
+      {q:"Rôle de l'en-tête Host dans une requête HTTP", a:"Indique le nom de domaine ciblé par le client → permet à Apache de router vers le bon VirtualHost"},
+      {q:"En-tête qui identifie le navigateur du client", a:"User-Agent"},
+      {q:"Code HTTP 200 / 404 / 301", a:"200 → OK (ressource trouvée)\n404 → Not Found\n301 → Redirection permanente"},
+      {q:"Méthode HTTP la plus courante pour charger une page", a:"GET"},
+      {q:"Que signifie Keep-Alive dans la réponse serveur ?", a:"Maintien de la connexion TCP pour plusieurs requêtes\n(timeout = durée max, max = nb de requêtes max)"},
+      {q:"Comment est encodé le contenu dans la réponse HTTP (header) ?", a:"Content-Encoding: gzip (compression)\nContent-Length: taille en octets"},
+    ]
+  },
+  s45: {
+    label: "S4-5 — DNS",
+    cards: [
+      {q:"Différence résolveur DNS vs serveur de noms (NS)", a:"Résolveur : machine cliente pour interroger, ne gère aucun domaine\nNS (Name Server) : détient les zones DNS d'un domaine, contient les enregistrements"},
+      {q:"Rôle d'un enregistrement A", a:"Associe un nom de machine (FQDN) à une adresse IPv4"},
+      {q:"Rôle d'un enregistrement CNAME", a:"Alias vers un autre nom de machine (ex : www → serveur principal)"},
+      {q:"Rôle d'un enregistrement MX", a:"Désigne le ou les serveurs de mail du domaine"},
+      {q:"Rôle d'un enregistrement NS", a:"Désigne les serveurs de noms responsables du domaine"},
+      {q:"Commande pour lancer le container DNS215", a:"docker run -dti --name dns215 -p 9000:80 --dns 127.0.0.1 --hostname ns.wr215.net mmi3docker/dns215"},
+      {q:"URL Named Manager + credentials", a:"http://localhost:9000\nLogin : setup / Mot de passe : setup123"},
+      {q:"Commande pour récupérer l'IP d'un container", a:"docker inspect nom_container | grep IPAddress"},
+      {q:"Qu'est-ce qu'un fichier de zone DNS ?", a:"Fichier texte sur le serveur NS qui décrit tous les enregistrements d'un domaine (A, CNAME, MX, NS…)"},
+    ]
+  },
+  s7: {
+    label: "S7 — SSH / Git / GoAccess",
+    cards: [
+      {q:"SSH : port par défaut et inventeur", a:"Port : 22\nInventeur : Tatu Ylönen (Finlandais, 1995)"},
+      {q:"Que stocke le fichier known_hosts ?", a:"Les clés publiques des serveurs déjà connus par le client\n(authentifie le serveur à chaque connexion)"},
+      {q:"Fichiers générés par ssh-keygen -t ecdsa", a:"~/.ssh/id_ecdsa → clé PRIVÉE (ne jamais partager)\n~/.ssh/id_ecdsa.pub → clé PUBLIQUE (à distribuer)"},
+      {q:"Pourquoi ne pas mettre de passphrase sur une clé d'automatisation ?", a:"Pour que les scripts / déploiements Git s'authentifient sans intervention humaine"},
+      {q:"Dans quel fichier ajouter sa clé publique pour GitHub ?", a:"Sur GitHub : Settings → SSH Keys → coller le contenu de id_ecdsa.pub"},
+      {q:"Commandes Git de base pour déployer", a:"git add .\ngit commit -m \"message\"\ngit push origin main"},
+      {q:"Installer GoAccess sur Debian", a:"apt install goaccess"},
+      {q:"Options de la commande crontab", a:"-e → éditer la crontab\n-l → afficher la liste\n-r → supprimer TOUTE la liste (attention !)"},
+      {q:"Syntaxe crontab : tous les jours à 18h", a:"0 18 * * * /root/monscript.sh"},
+      {q:"Syntaxe crontab : toutes les 5 minutes", a:"*/5 * * * * /root/monscript.sh"},
+      {q:"Que montre GoAccess en temps réel ?", a:"Requêtes, visiteurs uniques, pages demandées, IPs clients, OS, navigateurs, codes HTTP, heures de visite, sites référents"},
+      {q:"Format de log Apache requis par GoAccess", a:"combined\n(contient : IP, user, date, requête, code HTTP, taille, user-agent, référent)"},
+      {q:"Principe d'authentification SSH par clé publique", a:"1. Client génère une empreinte chiffrée avec sa clé PRIVÉE\n2. Serveur déchiffre avec la clé PUBLIQUE\n3. Si les empreintes matchent → authentifié"},
+      {q:"Différence SSH vs SSL", a:"SSH : protocole terminal sécurisé (port 22), aussi SFTP/SCP\nSSL : couche entre transport et applicatif (HTTP→HTTPS, FTP→FTPS)"},
+    ]
+  }
+};
+
+// ── State ──
+const LS_KEY = 'wr215_v1';
+let state = JSON.parse(localStorage.getItem(LS_KEY) || 'null') || {
+  cat: 'exam',
+  ok: 0, ko: 0, skip: 0
+};
+let deck = [];
+let idx = 0;
+let flipped = false;
+let scores = { ok: state.ok || 0, ko: state.ko || 0, skip: state.skip || 0 };
+
+function save() {
+  state.cat = currentCat;
+  state.ok = scores.ok;
+  state.ko = scores.ko;
+  state.skip = scores.skip;
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+}
+
+let currentCat = state.cat || 'exam';
+
+// ── Build ──
+function buildDeck(cat) {
+  currentCat = cat;
+  deck = [...CARDS[cat].cards].sort(() => Math.random() - 0.5);
+  idx = 0;
+  scores = { ok: 0, ko: 0, skip: 0 };
+  flipped = false;
+  updateBadges();
+  document.getElementById('end-card').classList.remove('show');
+  document.getElementById('scene').style.display = '';
+  document.getElementById('controls').style.display = '';
+  showCard();
+  save();
+}
+
+function renderTabs() {
+  const el = document.getElementById('tabs');
+  el.innerHTML = '';
+  Object.entries(CARDS).forEach(([key, val]) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (val.isExam ? ' exam' : '') + (key === currentCat ? ' active' : '');
+    btn.textContent = val.label;
+    btn.onclick = () => { renderTabs(); buildDeck(key); renderTabs(); };
+    el.appendChild(btn);
+  });
+}
+
+function showCard() {
+  if (idx >= deck.length) { showEnd(); return; }
+  const card = deck[idx];
+  flipped = false;
+  document.getElementById('inner').classList.remove('flipped');
+  document.getElementById('card-q').textContent = card.q;
+
+  const aEl = document.getElementById('card-a');
+  let html = card.a
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\n/g,'<br>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>');
+  aEl.innerHTML = html;
+
+  const bt = document.getElementById('back-tag');
+  if (CARDS[currentCat].isExam) {
+    bt.className = 'card-tag exam-tag';
+  } else {
+    bt.className = 'card-tag back-tag';
+  }
+
+  const pf = document.getElementById('prog');
+  pf.style.width = (idx / deck.length * 100) + '%';
+  pf.className = 'progress-fill' + (CARDS[currentCat].isExam ? ' exam-color' : '');
+  document.getElementById('prog-counter').textContent = `Carte ${idx+1} / ${deck.length}`;
+  document.getElementById('prog-cat').textContent = CARDS[currentCat].label;
+}
+
+function flip() {
+  flipped = !flipped;
+  document.getElementById('inner').classList.toggle('flipped', flipped);
+}
+
+function vote(ok) {
+  if (!flipped) { flip(); return; }
+  if (ok) scores.ok++; else scores.ko++;
+  updateBadges();
+  idx++;
+  if (idx >= deck.length) { showEnd(); } else { showCard(); }
+  save();
+}
+
+function skip() {
+  scores.skip++;
+  updateBadges();
+  idx++;
+  if (idx >= deck.length) { showEnd(); } else { showCard(); }
+  save();
+}
+
+function updateBadges() {
+  const sets = [
+    ['b-ok','hdr-ok','✓ ', scores.ok],
+    ['b-ko','hdr-ko','✗ ', scores.ko],
+    ['b-sk','hdr-skip','→ ', scores.skip]
+  ];
+  sets.forEach(([local, hdr, prefix, val]) => {
+    document.getElementById(local).textContent = prefix + val;
+    document.getElementById(hdr).textContent = prefix + val;
+  });
+}
+
+function showEnd() {
+  document.getElementById('scene').style.display = 'none';
+  document.getElementById('controls').style.display = 'none';
+  const total = scores.ok + scores.ko + scores.skip;
+  const pct = total ? Math.round(scores.ok / total * 100) : 0;
+  document.getElementById('end-pct').textContent = pct + '%';
+  document.getElementById('end-title').textContent = pct >= 80 ? 'Excellent !' : pct >= 60 ? 'Pas mal' : 'À retravailler';
+  document.getElementById('end-sub').textContent = `${scores.ok} su · ${scores.ko} raté · ${scores.skip} passé sur ${total} cartes`;
+  document.getElementById('btn-restart').onclick = () => buildDeck(currentCat);
+  document.getElementById('end-card').classList.add('show');
+  document.getElementById('prog').style.width = '100%';
+  document.getElementById('prog-counter').textContent = 'Terminé !';
+  save();
+}
+
+// ── Init ──
+renderTabs();
+buildDeck(currentCat);
+renderTabs();
+</script>
+</body>
+</html>
