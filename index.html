@@ -407,6 +407,11 @@ const CARDS = {
       {q:"Commande pour cloner un repo GitHub via SSH", a:"git clone git@github.com:user/repo.git\n(nécessite la clé publique déposée sur GitHub : Settings → SSH Keys)"},
       {q:"Comment supprimer un fichier proprement avec Git ?", a:"git rm fichier.txt\ngit commit -m \"Suppression\"\ngit push\n→ Puis git pull sur le VPS\n(un simple rm local ne suffit pas, Git ne le sait pas)"},
       {q:"Que contient le format de log 'combined' Apache ?", a:"IP client, utilisateur, date/heure, requête HTTP, code statut, taille, page d'origine (referrer), user-agent (navigateur/OS)"},
+      {q:"Commande pour vérifier la résolution DNS d'un nom", a:"nslookup nom.domaine.fr\n→ affiche l'IP résolue + le serveur DNS utilisé\nAlternative : dig nom.domaine.fr (plus de détails, montre le NS autoritaire)"},
+      {q:"Commande pour vérifier un enregistrement MX", a:"dig MX domaine.fr\n→ affiche le ou les serveurs mail du domaine avec leur priorité"},
+      {q:"Configurer Git avant le premier commit (identité)", a:"git config --global user.name \"NOM_COMPTE_GITHUB\"\ngit config --global user.email \"EMAIL_COMPTE_GITHUB\"\n→ À faire une seule fois sur chaque machine/container"},
+      {q:"Initialiser un dossier existant comme dépôt Git", a:"cd /var/www/wr215\ngit init\ngit add *\ngit commit -m \"Premier commit\"\ngit push"},
+      {q:"Qu'est-ce que lynx et pourquoi l'utiliser ?", a:"Navigateur web en ligne de commande (terminal)\nUtilisé pour tester un site depuis le container/VPS sans interface graphique\nCommande : lynx www.domaine.fr"},
     ]
   },
   s1: {
